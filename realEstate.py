@@ -24,4 +24,13 @@ print('------------------------------------------')
 print(df.isnull().sum())
 print('------------------------------------------')
 
-# Drop rows - 
+# [[Dirty data]] - 월세인데 월세금이 0인 경우 > 중원구: 1개
+monthly_home = df[df['전월세구분'] == '월세']
+print(monthly_home.head())
+print(monthly_home[monthly_home['월세금(만원)'] == 0])
+print('------------------------------------------')
+
+# [[Dirty data]] - 전세인데 월세금이 0이 아닌 경우  > 중원구: 없음
+yearly_home = df[df['전월세구분'] == '전세']
+print(yearly_home.head())
+print(yearly_home[yearly_home['월세금(만원)'] != 0])
