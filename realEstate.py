@@ -24,10 +24,18 @@ print('------------------------------------------')
 print(df.isnull().sum())
 print('------------------------------------------')
 
+# [[Unusable data]] - 보증금 , 제거
+df['보증금(만원)'] = df['보증금(만원)'].apply(lambda x: int(x.replace(',', '')))
+# print(df.head())
+
 # [[Dirty data]] - 월세인데 월세금이 0인 경우 > 중원구: 1개
 monthly_home = df[df['전월세구분'] == '월세']
 print(monthly_home.head())
 print(monthly_home[monthly_home['월세금(만원)'] == 0])
+
+# drop row
+index_to_drop = df[(df['전월세구분'] == '월세') & (df['월세금(만원)'] == 0)].index
+df.drop(index_to_drop, inplace=True)
 print('------------------------------------------')
 
 # [[Dirty data]] - 전세인데 월세금이 0이 아닌 경우  > 중원구: 없음
