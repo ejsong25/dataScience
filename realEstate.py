@@ -1,4 +1,4 @@
-from sklearn.preprocessing import OrdinalEncoder
+from sklearn.preprocessing import OrdinalEncoder, LabelEncoder, StandardScaler
 from datetime import datetime
 import re
 import pandas as pd
@@ -74,6 +74,7 @@ df = df.drop(columns=['전월세구분'])
 df = df.dropna(subset=['건축년도'])
 df['건물연식'] = (datetime.now().year - df['건축년도']).astype(int)
 df = df.drop(columns=['건축년도'])
+# print(df.head(10))
 
 '''
 계약기간: 202401 ~ 202601
@@ -81,6 +82,7 @@ df = df.drop(columns=['건축년도'])
 2. 종료년도에서 시작년도를 뺀다
 3. null value 들은 평균 값으로 채워준다. 
 '''
+# 반년 단위 계약은 없었는지?
 df['계약기간'] = df['계약기간'].apply(
     lambda x: int(x.split('~')[1][:4])if pd.notna(x) else None) - df['계약기간'].apply(
     lambda x: int(x.split('~')[0][:4]) if pd.notna(x) else None)
@@ -91,6 +93,7 @@ df['계약기간'] = df['계약기간'].astype(int)
 df['계약년도'] = df['계약년월']//100
 df['계약월'] = df['계약년월'] % 100
 df = df.drop(columns=['계약년월'])
+# print(df.head(10))
 
 '''
 도로명: ㅁㅁㅁㅁ길ㅇㅇㅇ번지 (ㅁ: 문자, ㅇ: 정수)
@@ -102,7 +105,21 @@ pattern = r'(\D+)(\d+)?'
 
 df['도로명'] = df['도로명'].apply(lambda x: re.match(
     pattern, x).group(1) if pd.notna(x) else None)
+print(df.head(10))
 
+print("\n도로명 null drop 이후 도로조건 null 확인========================")
+print(df.isnull().sum())
+
+# 라벨인코딩 진행------------------------------------------
+# 원래 도로명에 따른 도로조건 평균으로 도로조건 null값 replace하려했으나 앞선 전처리 과정에서 도로조건 null값이 제거됨
+# 도로명이 null이면 도로조건도 null이었을거라 예상 - [확인 필요]
+'''
+24개 도로명 > 라벨 인코딩 진행
+'''
+le = LabelEncoder()
+df['도로명'] = le.fit_transform(df['도로명'])
+# print(df.head())
+# -------------------------------------------------------
 '''
 도로조건: ['8m미만', '12m미만', '25m미만', '25m이상', ]: 매물과 인근한 도로의 넓이
 
@@ -123,3 +140,19 @@ print('\n=======================================================================
 print('[Column 별 null data 수]\n')
 print(df.isnull().sum())
 print('\n====================================================================================================================\n')
+
+# numerical data 확인용
+print(df.info())
+
+# Scaling - 모든 numerical data에 대해 진행?
+# 우선 계약면적, 보증금, 월세금, 계약기간, 건물 연식만 진행
+scaler = StandardScaler()
+df['계약면적(㎡)'] = scaler.fit_transform(df[['계약면적(㎡)']])
+df['보증금(만원)'] = scaler.fit_transform(df[['보증금(만원)']])
+df['월세금(만원)'] = scaler.fit_transform(df[['월세금(만원)']])
+df['계약기간'] = scaler.fit_transform(df[['계약기간']])
+df['건물연식'] = scaler.fit_transform(df[['건물연식']])
+
+print(df.head(10))
+
+
