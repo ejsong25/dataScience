@@ -35,8 +35,6 @@ column_mapping = {
 # 컬럼 이름 변경
 df = df.rename(columns=column_mapping)
 
-print(df.head())
-
 '''
 기본 통계 데이터
 '''
@@ -74,22 +72,6 @@ print(df.head(10))
 print('\n====================================================================================================================\n')
 
 '''
-# 시군구 동 추출---------------------------------------------
-
-ver2. 05/24
-
-전처리 2차 회의 후, 시군구는 일단 사용하지 않기로 결정.
-추후에 동별 추이 및 평계를 위해 추가적 디벨롭 할 때 다시 사용하기로.
-'''
-
-# df['시군구'] = df['시군구'].apply(lambda x: x.split()[-1])
-
-# 라벨인코딩-통계 자료로 활용한다면 필요한 작업인가?
-# le = LabelEncoder()
-# df['시군구'] = le.fit_transform(df['시군구'])
-
-
-'''
 보증금(만원): 콤마 제거
 '''
 df['deposit'] = df['deposit'].fillna('0').apply(
@@ -115,13 +97,6 @@ index_to_drop = df[(df['lease_type'] == '전세') &
                    (df['monthly_rent_bill'] != 0)].index
 df.drop(index_to_drop, inplace=True)
 
-'''
-전월세구분: ['전세', '월세'] -> 우위가 있는 게 아니기에,
-one hot encoding 진행
-'''
-df_encoded = pd.get_dummies(df['lease_type'])
-df = pd.concat([df, df_encoded], axis=1)
-df = df.drop(columns=['lease_type'])
 
 '''
 건축연식 = 현재 년도 - 건축년도
@@ -191,13 +166,11 @@ df = pd.concat([df, df_target], axis=1)
 '''
 월세, 전세 데이터 분리 후 저장
 '''
-df_js = df[df['전세'] == True]
-df_js = df_js.drop(columns=['전세', '월세', 'monthly_rent_bill'])
+df_js = df[df['lease_type'] == '전세']
+df_js = df_js.drop(columns=['monthly_rent_bill', 'lease_type'])
 
+df_ws = df[df['lease_type'] == '월세']
+df_ws = df_ws.drop(columns=['lease_type'])
 
-df_ws = df[df['월세'] == True]
-df_ws = df_ws.drop(columns=['월세', '전세'])
-
-
-# df_ws.to_csv('wolse_dataset.csv', index=False, encoding='utf-8-sig')
-# df_js.to_csv('jeonse_dataset.csv', index=False, encoding='utf-8-sig')
+df_ws.to_csv('wolse_dataset.csv', index=False, encoding='utf-8-sig')
+df_js.to_csv('jeonse_dataset.csv', index=False, encoding='utf-8-sig')
