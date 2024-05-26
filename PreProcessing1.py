@@ -35,6 +35,8 @@ column_mapping = {
 # 컬럼 이름 변경
 df = df.rename(columns=column_mapping)
 
+print(df.head())
+
 '''
 기본 통계 데이터
 '''
