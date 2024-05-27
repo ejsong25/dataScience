@@ -35,6 +35,8 @@ plt.figure(figsize=(20, 20))
 g = sns.heatmap(corrmat, annot=True, cmap="RdYlGn")
 plt.show()
 
+df.to_csv('jeonse_dataset_normalized.csv', index=False, encoding='utf-8-sig')
+
 '''
 월세 데이터셋을 사용.
 target(monthly_rent_bill(월세금)) 에 각 feaeture 가 미치는 영향 확인
@@ -64,3 +66,6 @@ top_corr_features = corrmat.index
 plt.figure(figsize=(20, 20))
 g = sns.heatmap(corrmat, annot=True, cmap="RdYlGn")
 plt.show()
+
+
+df.to_csv('wolse_dataset_normalized.csv', index=False, encoding='utf-8-sig')
