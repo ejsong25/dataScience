@@ -1,4 +1,4 @@
-from sklearn.preprocessing import OrdinalEncoder, LabelEncoder
+from sklearn.preprocessing import OrdinalEncoder, OneHotEncoder
 from datetime import datetime
 import re
 import pandas as pd
@@ -139,12 +139,22 @@ df['road_name'] = df['road_name'].apply(lambda x: re.match(
     pattern, x).group(1) if pd.notna(x) else None)
 
 
-'''
-24개 도로명 > 라벨 인코딩 진행
-'''
-le = LabelEncoder()
-df['road_name'] = le.fit_transform(df['road_name'])
+# '''
+# 24개 도로명 > 라벨 인코딩 진행
+# '''
+# # le = LabelEncoder()
+# # df['road_name'] = le.fit_transform(df['road_name'])
 
+# '''
+# Ver3. Label encoding 은 회귀 모델에서 부적절.
+# One-hot encoding 진행
+# '''
+# encoder = OneHotEncoder(sparse_output=False)
+# road_name_encoded = encoder.fit_transform(df[['road_name']])
+# road_name_encoded_df = pd.DataFrame(
+#     road_name_encoded, columns=encoder.get_feature_names_out(['road_name']))
+# df = pd.concat([df, road_name_encoded_df], axis=1)
+# df = df.drop(columns=['road_name'])
 
 '''
 도로조건: ['8m미만', '12m미만', '25m미만', '25m이상', ]: 매물과 인근한 도로의 넓이
