@@ -75,12 +75,6 @@ print('[Sample data after dropping useless columns]\n')
 print(df.head(10))
 print('\n====================================================================================================================\n')
 
-# 05/28 시군구 동 추출, 원핫 인코딩 진행
-df['district'] = df['district'].apply(lambda x: x.split()[-1])
-encoded_district = pd.get_dummies(df['district'])
-df = pd.concat([df, encoded_district], axis=1)
-df = df.drop(columns=['district'])
-# print(df.head())
 
 '''
 보증금(만원): 콤마 제거
@@ -150,26 +144,29 @@ df = df.dropna(subset=['road_condition'])
 encoder = OrdinalEncoder(categories=[['8m미만', '12m미만', '25m미만', '25m이상', ]])
 df['road_condition'] = encoder.fit_transform(df[['road_condition']])
 
-# null data 확인용
-# print('[Column 별 null data 수]\n')
-# print(df.isnull().sum())
-'''
-target Value 를 가장 끝으로 옮기기
-'''
-df_target = df[['deposit', 'monthly_rent_bill']]
-df = df.drop(columns=['deposit', 'monthly_rent_bill'])
-df = pd.concat([df, df_target], axis=1)
 
-print(df.head(10))
+df_district = df['district']
+df = df.drop(columns=['district'])
+df = pd.concat([df, df_district], axis=1)
 
-'''
-월세, 전세 데이터 분리 후 저장
-'''
+# 05/28 시군구 동 추출, 원핫 인코딩 진행
+df['district'] = df['district'].apply(lambda x: x.split()[-1])
+encoded_district = pd.get_dummies(df['district'])
+df = pd.concat([df, encoded_district], axis=1)
+df = df.drop(columns=['district'])
+
 df_js = df[df['lease_type'] == '전세']
-df_js = df_js.drop(columns=['monthly_rent_bill', 'lease_type'])
+df_js_target = df_js['deposit']
+
+df_js = df_js.drop(columns=['deposit', 'monthly_rent_bill', 'lease_type'])
+df_js = pd.concat([df_js, df_js_target], axis=1)
 
 df_ws = df[df['lease_type'] == '월세']
-df_ws = df_ws.drop(columns=['lease_type'])
+df_ws_target = df_ws['monthly_rent_bill']
 
-df_ws.to_csv('wolse_dataset.csv', index=False, encoding='utf-8-sig')
+df_ws = df_ws.drop(columns=['lease_type', 'monthly_rent_bill'])
+df_ws = pd.concat([df_ws, df_ws_target], axis=1)
+
+
 df_js.to_csv('jeonse_dataset.csv', index=False, encoding='utf-8-sig')
+df_ws.to_csv('wolse_dataset.csv', index=False, encoding='utf-8-sig')
