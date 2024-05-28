@@ -91,7 +91,7 @@ df = df.drop(columns=['건축년도'])
 2. 종료년도에서 시작년도를 뺀다
 3. null value 들은 평균 값으로 채워준다. 
 '''
-# 반년 단위 계약은 없었는지?
+
 df['계약기간'] = df['계약기간'].apply(
     lambda x: int(x.split('~')[1][:4])if pd.notna(x) else None) - df['계약기간'].apply(
     lambda x: int(x.split('~')[0][:4]) if pd.notna(x) else None)
@@ -119,16 +119,12 @@ print(df.head(10))
 print("\n도로명 null drop 이후 도로조건 null 확인========================")
 print(df.isnull().sum())
 
-# 라벨인코딩 진행------------------------------------------
-# 원래 도로명에 따른 도로조건 평균으로 도로조건 null값 replace하려했으나 앞선 전처리 과정에서 도로조건 null값이 제거됨
-# 도로명이 null이면 도로조건도 null이었을거라 예상 - [확인 필요]
 '''
 24개 도로명 > 라벨 인코딩 진행
 '''
 le = LabelEncoder()
 df['도로명'] = le.fit_transform(df['도로명'])
-# print(df.head())
-# -------------------------------------------------------
+
 '''
 도로조건: ['8m미만', '12m미만', '25m미만', '25m이상', ]: 매물과 인근한 도로의 넓이
 
