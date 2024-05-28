@@ -10,6 +10,20 @@ target(deposit(보증금)) 에 각 feaeture 가 미치는 영향 확인
 '''
 df = pd.read_csv('jeonse_dataset.csv')
 
+# 한글 칼럼명을 영어 칼럼명으로 변환
+def convert_to_english(dataframe):
+    english_columns = ["Galhyeon", "Godeung", "Geumgwang", "Geumto", "Dandae",
+                       "Dochon", "Bokjeong", "Sasong", "Sanseong", "Sangdaewon",
+                       "Sangjeok", "Seongnam", "Sujin", "Siheung", "Sinchon",
+                       "Sinhung", "Simgok", "Yangji", "Yeosu", "Oya",
+                       "Eunhaeng", "Jungang", "Changok", "Taepyeong", "Hadaewon"]
+    
+    # 한글 칼럼명을 영어 칼럼명으로 변환
+    dataframe.columns = [english_columns.pop(0) if col.endswith('동') else col for col in dataframe.columns]
+    return df
+
+df=convert_to_english(df)
+
 scaler = StandardScaler()
 
 df['contract_area_m2'] = scaler.fit_transform(df[['contract_area_m2']])
@@ -62,6 +76,9 @@ plt.show()
 target(monthly_rent_bill(월세금)) 에 각 feaeture 가 미치는 영향 확인
 '''
 df = pd.read_csv('wolse_dataset.csv')
+
+# 한글 칼럼명을 영어 칼럼명으로 변환
+df=convert_to_english(df)
 
 df['contract_area_m2'] = scaler.fit_transform(df[['contract_area_m2']])
 df['building_age'] = scaler.fit_transform(df[['building_age']])
