@@ -56,20 +56,31 @@ print('\n=======================================================================
 
 '''
 [유의미 데이터 추출]
-Drop column - 시군구, 번지, 계약일, 계약구분 부터 모든 칼럼
-사용 column -  도로조건, 계약면적, 전월세구분, 계약년월, 보증금(만원), '월세금(만원)', 건축년도, 도로명, 계약기간
+Drop column - 번지, 계약일, 도로명, 계약구분 부터 모든 칼럼
+사용 column -  시군구, 도로조건, 계약면적, 전월세구분, 계약년월, 보증금(만원), '월세금(만원)', 건축년도, 도로명, 계약기간
+'''
 
+'''
 ver2. 05/24
 
 전처리 2차 회의 후, 시군구는 일단 사용하지 않기로 결정.
 추후에 동별 추이 및 평계를 위해 추가적 디벨롭 할 때 다시 사용하기로.
 '''
-indices_to_use = [2, 3, 4, 5, 7, 8, 9, 10, 11]
+
+# ver3.  05/28 시군구 칼럼 추가
+indices_to_use = [0, 2, 3, 4, 5, 7, 8, 9, 11]
 df = df.iloc[:, indices_to_use]
 
 print('[Sample data after dropping useless columns]\n')
 print(df.head(10))
 print('\n====================================================================================================================\n')
+
+# 05/28 시군구 동 추출, 원핫 인코딩 진행
+df['district'] = df['district'].apply(lambda x: x.split()[-1])
+encoded_district = pd.get_dummies(df['district'])
+df = pd.concat([df, encoded_district], axis=1)
+df = df.drop(columns=['district'])
+# print(df.head())
 
 '''
 보증금(만원): 콤마 제거
@@ -114,7 +125,6 @@ df = df.drop(columns=['construction_year'])
 2. 종료년도에서 시작년도를 뺀다
 3. null value 들은 평균 값으로 채워준다.
 '''
-# 반년 단위 계약은 없었는지?
 df['contract_period'] = df['contract_period'].apply(
     lambda x: int(x.split('~')[1][:4])if pd.notna(x) else None) - df['contract_period'].apply(
     lambda x: int(x.split('~')[0][:4]) if pd.notna(x) else None)
@@ -128,33 +138,21 @@ df['contract_month'] = df['contract_year_month'] % 100
 df = df.drop(columns=['contract_year_month'])
 
 '''
-도로명: ㅁㅁㅁㅁ길ㅇㅇㅇ번지 (ㅁ: 문자, ㅇ: 정수)
-1. 정수를 기준으로 두 파트로 나눈다. [ㅁㅁㅁㅁ길, ㅇㅇㅇ번지]
-2. ㅇㅇㅇ번지까지 도로명을 구분하면 너무 많기에, ㅁㅁㅁ길로 통일해준다.
-'''
-df = df.dropna(subset=['road_name'])
-pattern = r'(\D+)(\d+)?'
-
-df['road_name'] = df['road_name'].apply(lambda x: re.match(
-    pattern, x).group(1) if pd.notna(x) else None)
-
-
-'''
-24개 도로명 > 라벨 인코딩 진행
-'''
-le = LabelEncoder()
-df['road_name'] = le.fit_transform(df['road_name'])
-
-
-'''
 도로조건: ['8m미만', '12m미만', '25m미만', '25m이상', ]: 매물과 인근한 도로의 넓이
 
 넓이가 넓을수록 교통이 좋다고 판단.
 따라서 one-hot encoding 이 아닌, ordinal-encoding 진행
+
 '''
+# ver3 05/28 도로명 칼럼을 drop하면서 미처리된 '도로조건 null data' drop 진행
+
+df = df.dropna(subset=['road_condition'])
 encoder = OrdinalEncoder(categories=[['8m미만', '12m미만', '25m미만', '25m이상', ]])
 df['road_condition'] = encoder.fit_transform(df[['road_condition']])
 
+# null data 확인용
+# print('[Column 별 null data 수]\n')
+# print(df.isnull().sum())
 '''
 target Value 를 가장 끝으로 옮기기
 '''
@@ -162,6 +160,7 @@ df_target = df[['deposit', 'monthly_rent_bill']]
 df = df.drop(columns=['deposit', 'monthly_rent_bill'])
 df = pd.concat([df, df_target], axis=1)
 
+print(df.head(10))
 
 '''
 월세, 전세 데이터 분리 후 저장
