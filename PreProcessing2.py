@@ -104,7 +104,9 @@ corrmat = df_only_distrcit.corr()
 보증금 - 보증금 상관관계는 1이므로 drop
 상관관계를 표준화 하여 지역 점수로 반영
 '''
+
 # 각 '동'이 보증금에 미치는 상관 관계 계산, 표준화 => 지역점수
+
 district_corr = df_only_distrcit.corr()["deposit"].drop("deposit")
 district_index = district_corr.index  # 지역명 인덱스 저장
 
@@ -112,7 +114,7 @@ district_corr = district_corr.values.reshape(-1, 1)
 district_scores = StandardScaler().fit_transform(district_corr)
 
 # column : 동, row: district score
-district_scores_df = pd.DataFrame(district_scores, index=district_index, columns=["District Score"]).T
+district_scores_df = pd.DataFrame(district_scores, index=district_index, columns=["district_score"]).T
 print(district_scores_df)
 
 
@@ -125,7 +127,7 @@ def get_district_score(row):
             return district_scores_df[col].values[0]
     return 0  # 모든 값이 False인 경우
 
-df["District Score"] = df.apply(get_district_score, axis=1)
+df["district_score"] = df.apply(get_district_score, axis=1)
 
 # 원핫 인코딩된 컬럼 drop
 df = df.drop(columns=district_index)
@@ -134,7 +136,7 @@ df['deposit'] = deposit
 print(df.head())
 
 # 지역 점수를 포함한 상관관계 히트맵 생성
-corrmat_district_score = df[["District Score", "deposit"]].corr()
+corrmat_district_score = df[["district_score", "deposit"]].corr()
 plt.figure(figsize=(6, 6))
 plt.title("[전세 데이터]: Correlation Matrix 시각화 (지역 점수 포함)")
 sns.heatmap(corrmat_district_score, annot=True, cmap="RdYlGn")
@@ -150,8 +152,6 @@ plt.show()
 
 # normalize된 전세 데이터를 csv로 저장
 # df.to_csv('jeonse_dataset_normalized.csv', index=False, encoding='utf-8-sig')
-
-# ---------------------------------------------------------------------------------------------------------
 
 """
 월세 데이터셋을 사용.
@@ -203,6 +203,54 @@ plt.show()
 df_only_distrcit = df.drop(X.columns, axis=1)
 
 corrmat = df_only_distrcit.corr()
+
+# ----------------------------------------------------------------------
+# "동" 컬럼만 추출하여 지역 점수 생성
+'''
+'동'과 월세금 간의 상관관계 계산, 
+월세금 - 월세금 상관관계는 1이므로 drop
+상관관계를 표준화 하여 지역 점수로 반영
+'''
+
+# 각 '동'이 월세금 미치는 상관 관계 계산, 표준화 => 지역점수
+
+district_corr = df_only_distrcit.corr()["monthly_rent_bill"].drop("monthly_rent_bill")
+district_index = district_corr.index  # 지역명 인덱스 저장
+
+district_corr = district_corr.values.reshape(-1, 1)
+district_scores = StandardScaler().fit_transform(district_corr)
+
+# column : 동, row: district score
+district_scores_df = pd.DataFrame(district_scores, index=district_index, columns=["district_score"]).T
+print("district score dataframe")
+print(district_scores_df)
+
+# 지역 점수를 원래 데이터프레임에 추가
+# 각 행에서 True인 값의 컬럼명을 찾아 해당하는 지역 점수를 새 컬럼으로 추가
+
+def get_district_score(row):
+    for col in district_index:
+        if row[col] == 1:
+            return district_scores_df[col].values[0]
+    return 0  # 모든 값이 False인 경우
+
+df["district_score"] = df.apply(get_district_score, axis=1)
+
+# 원핫 인코딩된 컬럼 drop
+df = df.drop(columns=district_index)
+cost = df.pop("monthly_rent_bill")
+df['monthly_rent_bill'] = cost
+
+print("renewed original dataset")
+print(df.head())
+
+# 지역 점수를 포함한 상관관계 히트맵 생성
+corrmat_district_score = df[["district_score", "monthly_rent_bill"]].corr()
+plt.figure(figsize=(6, 6))
+plt.title("[월세 데이터]: Correlation Matrix 시각화 (지역 점수 포함)")
+sns.heatmap(corrmat_district_score, annot=True, cmap="RdYlGn")
+plt.show()
+# ---------------------------------------------------------------------
 
 top_corr_features = corrmat.index
 plt.figure(figsize=(15, 15))
