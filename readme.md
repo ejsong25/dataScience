@@ -51,4 +51,6 @@
 >   >   >   > * very cheap: -inf ~ (mean - 1.5 * std)
 >   >   >   > * cheap: (mean - 1.5 * std) ~ (mean - 0.5 * std)
 >   >   >   > * appropriate: (mean - 0.5 * std) ~ (mean + 0.5 * std)
+>   >   >   > * expensive: (mean + 0.5 * std) ~ (mean + 1.5 * std)
+>   >   >   > * very expensive: (mean + 1.5 * std) ~ inf
 
