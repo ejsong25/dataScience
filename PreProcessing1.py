@@ -64,8 +64,8 @@ print(
 
 """
 [유의미 데이터 추출]
-Drop column - 번지, 계약일, 도로명, 계약구분 부터 모든 칼럼
-사용 column -  시군구, 도로조건, 계약면적, 전월세구분, 계약년월, 보증금(만원), '월세금(만원)', 건축년도, 도로명, 계약기간
+Drop column - 번지, 계약년월, 계약일, 도로명, 계약구분 부터 모든 칼럼
+사용 column -  시군구, 도로조건, 계약면적, 전월세구분, 보증금(만원), '월세금(만원)', 건축년도, 도로명, 계약기간
 """
 
 """
@@ -73,10 +73,12 @@ ver2. 05/24
 
 전처리 2차 회의 후, 시군구는 일단 사용하지 않기로 결정.
 추후에 동별 추이 및 평계를 위해 추가적 디벨롭 할 때 다시 사용하기로.
+
+ver3.  05/28 시군구 칼럼 추가
 """
 
-# ver3.  05/28 시군구 칼럼 추가
-indices_to_use = [0, 2, 3, 4, 5, 7, 8, 9, 11]
+# ver4. 05/30 계약년월 drop - 가격 예측에 불필요, 추후 통계 자료 추출시 사용
+indices_to_use = [0, 2, 3, 4, 7, 8, 9, 11]
 df = df.iloc[:, indices_to_use]
 
 print("[Sample data after dropping useless columns]\n")
@@ -136,10 +138,12 @@ df["contract_period"] = df["contract_period"].fillna(
 )
 df["contract_period"] = df["contract_period"].astype(int)
 
+# ver4. contract_year_month drop
+'''
 df["contract_year"] = df["contract_year_month"] // 100
 df["contract_month"] = df["contract_year_month"] % 100
 df = df.drop(columns=["contract_year_month"])
-
+'''
 """
 도로조건: ['8m미만', '12m미만', '25m미만', '25m이상', ]: 매물과 인근한 도로의 넓이
 
@@ -185,6 +189,8 @@ df_ws_target = df_ws["monthly_rent_bill"]
 df_ws = df_ws.drop(columns=["lease_type", "monthly_rent_bill"])
 df_ws = pd.concat([df_ws, df_ws_target], axis=1)
 
+print(df_js.head())
+print(df_ws.head())
 
 df_js.to_csv("jeonse_dataset.csv", index=False, encoding="utf-8-sig")
 df_ws.to_csv("wolse_dataset.csv", index=False, encoding="utf-8-sig")

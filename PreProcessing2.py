@@ -56,10 +56,9 @@ df = convert_to_english(df)
 scaler = StandardScaler()
 # 데이터 정규화 (stand scaling 사용)
 df["contract_area_m2"] = scaler.fit_transform(df[["contract_area_m2"]])
-df["deposit"] = scaler.fit_transform(df[["deposit"]])
 df["building_age"] = scaler.fit_transform(df[["building_age"]])
 
-X = df.iloc[:, 0:6]  # 'Road_condition' ~ 'Construction_year' columns
+X = df.iloc[:, 0:4]  # 'Road_condition' ~ 'building_age' columns
 y = df.iloc[:, -1]  # 'Deposit' column
 
 # 동 제외
@@ -104,9 +103,7 @@ corrmat = df_only_distrcit.corr()
 보증금 - 보증금 상관관계는 1이므로 drop
 상관관계를 표준화 하여 지역 점수로 반영
 '''
-
 # 각 '동'이 보증금에 미치는 상관 관계 계산, 표준화 => 지역점수
-
 district_corr = df_only_distrcit.corr()["deposit"].drop("deposit")
 district_index = district_corr.index  # 지역명 인덱스 저장
 
@@ -166,9 +163,11 @@ df = convert_to_english(df)
 df["contract_area_m2"] = scaler.fit_transform(df[["contract_area_m2"]])
 df["building_age"] = scaler.fit_transform(df[["building_age"]])
 df["deposit"] = scaler.fit_transform(df[["deposit"]])
-df["monthly_rent_bill"] = scaler.fit_transform(df[["monthly_rent_bill"]])
 
-X = df.iloc[:, 0:7]  # 'Road_condition' ~ 'Contract_month' columns
+# target_variable 정규화 주석
+# df["monthly_rent_bill"] = scaler.fit_transform(df[["monthly_rent_bill"]])
+
+X = df.iloc[:, 0:5]  # 'Road_condition' ~ 'Contract_month' columns
 y = df.iloc[:, -1]  # 'Monthly_rent_bill' column
 
 # 동 제외
