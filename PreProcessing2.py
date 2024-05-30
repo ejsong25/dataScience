@@ -16,6 +16,8 @@ df = pd.read_csv("jeonse_dataset.csv")
 pd.set_option("display.max_seq_items", None)
 
 # 한글 칼럼명을 영어 칼럼명으로 변환
+
+
 def convert_to_english(dataframe):
     english_columns = [
         "Galhyeon",
@@ -80,7 +82,7 @@ print(f"[전세 데이터]: Feature Importance (동 컬럼 제외): {feat_import
 plt.figure(figsize=(10, 6))
 plt.title("[전세 데이터]: Feature Importance 시각화 (동 컬럼 제외)")
 feat_importances.nlargest(6).plot(kind="barh")
-plt.show()
+# plt.show()
 
 corrmat = df_with_out_district.corr()
 
@@ -88,7 +90,7 @@ top_corr_features = corrmat.index
 plt.figure(figsize=(15, 15))
 plt.title("[전세 데이터]: Correlation Matrix 시각화 (동 컬럼 제외)")
 g = sns.heatmap(corrmat, annot=True, cmap="RdYlGn")
-plt.show()
+# plt.show()
 
 # Only 동
 """
@@ -114,7 +116,8 @@ district_corr = district_corr.values.reshape(-1, 1)
 district_scores = StandardScaler().fit_transform(district_corr)
 
 # column : 동, row: district score
-district_scores_df = pd.DataFrame(district_scores, index=district_index, columns=["district_score"]).T
+district_scores_df = pd.DataFrame(
+    district_scores, index=district_index, columns=["district_score"]).T
 print(district_scores_df)
 
 
@@ -126,6 +129,7 @@ def get_district_score(row):
         if row[col] == 1:
             return district_scores_df[col].values[0]
     return 0  # 모든 값이 False인 경우
+
 
 df["district_score"] = df.apply(get_district_score, axis=1)
 
@@ -140,7 +144,7 @@ corrmat_district_score = df[["district_score", "deposit"]].corr()
 plt.figure(figsize=(6, 6))
 plt.title("[전세 데이터]: Correlation Matrix 시각화 (지역 점수 포함)")
 sns.heatmap(corrmat_district_score, annot=True, cmap="RdYlGn")
-plt.show()
+# plt.show()
 # ---------------------------------------------------------------------
 
 
@@ -148,10 +152,10 @@ top_corr_features = corrmat.index
 plt.figure(figsize=(15, 15))
 plt.title("[전세 데이터]: Correlation Matrix 시각화 (동 비교)")
 g = sns.heatmap(corrmat, annot=True, cmap="RdYlGn")
-plt.show()
+# plt.show()
 
 # normalize된 전세 데이터를 csv로 저장
-# df.to_csv('jeonse_dataset_normalized.csv', index=False, encoding='utf-8-sig')
+df.to_csv('jeonse_dataset_normalized.csv', index=False, encoding='utf-8-sig')
 
 """
 월세 데이터셋을 사용.
@@ -187,14 +191,14 @@ feat_importances = pd.Series(model.feature_importances_, index=X.columns)
 plt.figure(figsize=(10, 6))
 plt.title("[월세 데이터]: Feature Importance 시각화 (동 컬럼 제외)")
 feat_importances.nlargest(6).plot(kind="barh")
-plt.show()
+# plt.show()
 
 corrmat = df_with_out_district.corr()
 top_corr_features = corrmat.index
 plt.figure(figsize=(15, 15))
 plt.title("[월세 데이터]: Correlation Matrix 시각화 (동 컬럼 제외)")
 g = sns.heatmap(corrmat, annot=True, cmap="RdYlGn")
-plt.show()
+# plt.show()
 
 # only 동
 """
@@ -214,25 +218,29 @@ corrmat = df_only_distrcit.corr()
 
 # 각 '동'이 월세금 미치는 상관 관계 계산, 표준화 => 지역점수
 
-district_corr = df_only_distrcit.corr()["monthly_rent_bill"].drop("monthly_rent_bill")
+district_corr = df_only_distrcit.corr(
+)["monthly_rent_bill"].drop("monthly_rent_bill")
 district_index = district_corr.index  # 지역명 인덱스 저장
 
 district_corr = district_corr.values.reshape(-1, 1)
 district_scores = StandardScaler().fit_transform(district_corr)
 
 # column : 동, row: district score
-district_scores_df = pd.DataFrame(district_scores, index=district_index, columns=["district_score"]).T
+district_scores_df = pd.DataFrame(
+    district_scores, index=district_index, columns=["district_score"]).T
 print("district score dataframe")
 print(district_scores_df)
 
 # 지역 점수를 원래 데이터프레임에 추가
 # 각 행에서 True인 값의 컬럼명을 찾아 해당하는 지역 점수를 새 컬럼으로 추가
 
+
 def get_district_score(row):
     for col in district_index:
         if row[col] == 1:
             return district_scores_df[col].values[0]
     return 0  # 모든 값이 False인 경우
+
 
 df["district_score"] = df.apply(get_district_score, axis=1)
 
@@ -249,14 +257,14 @@ corrmat_district_score = df[["district_score", "monthly_rent_bill"]].corr()
 plt.figure(figsize=(6, 6))
 plt.title("[월세 데이터]: Correlation Matrix 시각화 (지역 점수 포함)")
 sns.heatmap(corrmat_district_score, annot=True, cmap="RdYlGn")
-plt.show()
+# plt.show()
 # ---------------------------------------------------------------------
 
 top_corr_features = corrmat.index
 plt.figure(figsize=(15, 15))
 plt.title("[월세 데이터]: Correlation Matrix 시각화 (동 비교)")
 g = sns.heatmap(corrmat, annot=True, cmap="RdYlGn")
-plt.show()
+# plt.show()
 
 # normalize된 월세 데이터를 csv로 저장
-# df.to_csv("wolse_dataset_normalized.csv", index=False, encoding="utf-8-sig")
+df.to_csv("wolse_dataset_normalized.csv", index=False, encoding="utf-8-sig")

@@ -89,7 +89,8 @@ print(
 """
 보증금(만원): 콤마 제거
 """
-df["deposit"] = df["deposit"].fillna("0").apply(lambda x: int(x.replace(",", "")))
+df["deposit"] = df["deposit"].fillna("0").apply(
+    lambda x: int(x.replace(",", "")))
 
 """
 전월세구분 wrong data:
@@ -103,10 +104,12 @@ df["deposit"] = df["deposit"].fillna("0").apply(lambda x: int(x.replace(",", "")
 index_to_drop = df[(df["deposit"] == 0)].index
 df.drop(index_to_drop, inplace=True)
 
-index_to_drop = df[(df["lease_type"] == "월세") & (df["monthly_rent_bill"] == 0)].index
+index_to_drop = df[(df["lease_type"] == "월세") & (
+    df["monthly_rent_bill"] == 0)].index
 df.drop(index_to_drop, inplace=True)
 
-index_to_drop = df[(df["lease_type"] == "전세") & (df["monthly_rent_bill"] != 0)].index
+index_to_drop = df[(df["lease_type"] == "전세") & (
+    df["monthly_rent_bill"] != 0)].index
 df.drop(index_to_drop, inplace=True)
 
 
@@ -115,7 +118,8 @@ df.drop(index_to_drop, inplace=True)
 숫자가 작을수록 좋음
 """
 df = df.dropna(subset=["construction_year"])
-df["building_age"] = (datetime.now().year - df["construction_year"]).astype(int)
+df["building_age"] = (datetime.now().year -
+                      df["construction_year"]).astype(int)
 df = df.drop(columns=["construction_year"])
 
 
