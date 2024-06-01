@@ -60,11 +60,11 @@ Open Source SW Contribution
 > Architecture
 > Preprocessing
 > Learning Model Training and Testing
->   > Linear Regression
->   > Decision Tree
+>   > * Linear Regression
+>   > * Decision Tree
 > Evaluation
->   > K-Fold Cross Validation
->   > Hold-Out Method
->   > Bootstrap Method
+>   > * K-Fold Cross Validation
+>   > * Hold-Out Method
+>   > * Bootstrap Method
 > Result
 > Github URL: https://github.com/ejsong25/dataScience
