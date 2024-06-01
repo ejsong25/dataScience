@@ -14,20 +14,21 @@ from sklearn.metrics import (
     f1_score,
 )
 
-# plot 한글 깨짐 방지
+# Preventing Koerean crush in plots
 plt.rcParams["font.family"] = "Malgun Gothic"
 plt.rcParams["axes.unicode_minus"] = False
 
-# 정규화된 전세 데이터셋 로드
+# Load normalized jeonse dataset
 jeonse_data = pd.read_csv("jeonse_dataset_normalized.csv")
 
-""" regression (특정 조건(도로상태, 면적, 계약기간, 방 개수, 건물연식)에 따른 전세 보증금 예측) """
+""" Regression (Predicting Monthly Rent Bill Based on Specific Conditions 
+(Road Condition, Contract Area, Contract Period, Number of Rooms, Building Age) """
 
-# independent variable와 target variable 설정
+# Setting Independent variable and Target variable
 X = jeonse_data.drop("deposit", axis=1)  # independent variables
 y = jeonse_data["deposit"]  # target variable (continuous)
 
-# 데이터를 train_set와 test_set로 분리
+# Splitting data into train_set and test_set
 X_train, X_test, y_train, y_test = train_test_split(
     X,
     y,
@@ -36,19 +37,19 @@ X_train, X_test, y_train, y_test = train_test_split(
     random_state=np.random.seed(),
 )
 
-# Linear Regression 모델 생성 및 훈련
+# Linear Regression Modeling and Training
 model = LinearRegression()
 model.fit(X_train, y_train)
 
-# 테스트 세트에 대한 예측 수행
+# Performing Predictions on the Test Set
 y_pred = model.predict(X_test)
 
-# RMSE, R2 Score 계산
+# RMSE, R2 Score Calculation
 mae = mean_absolute_error(y_test, y_pred)
 r2 = r2_score(y_test, y_pred)
 print(f"Mean_Absolute_Error: {mae}, R2_Score: {r2}\n")
 
-# 예측 결과 시각화
+# Prediction Visualization
 plt.scatter(y_test, y_pred, s=0.5)
 plt.plot([y.min(), y.max()], [y.min(), y.max()], "r-", lw=1)
 plt.xlabel("Actual Deposit")
@@ -57,22 +58,22 @@ plt.title("Linear Regression Plot")
 #plt.show()
 
 
-""" classification (전세 보증금을 특정 기준에 따라 분류) """
+""" classification (Classify jeonse deposit according to specific criteria) """
 
-# 전세 보증금의 mean, std 계산
+# Jeonse Deposit mean, std calculation
 deposit_mean = jeonse_data["deposit"].mean()
 deposit_std = jeonse_data["deposit"].std()
 
-# 수치형 레이블로 분류 기준 설정
+# Setting Classification Criteria for Numerical Labels
 criterion_labels = [
-    0,  # 매우 저렴
-    1,  # 저렴
-    2,  # 보통
-    3,  # 비쌈
-    4,  # 매우 비쌈
+    0,  # very cheap
+    1,  # cheap
+    2,  # appropriate
+    3,  # expensive
+    4,  # very expensive
 ]
 
-# 전세 보증금을 분류 기준에 따라 범주화
+# Categorizing Jeonse Deposit According to Classification Criteria
 '''
     very cheap: -inf ~ (deposit_mean - 1.5 * deposit_std)
     cheap: (deposit_mean - 1.5 * deposit_std) ~ (deposit_mean - 0.5 * deposit_std)
@@ -94,11 +95,11 @@ jeonse_data["deposit_category"] = pd.cut(
     right=False,
 )
 
-# independent variable과 target variable 설정
+# Setting independent variable and target variable
 X = jeonse_data.drop(["deposit", "deposit_category"], axis=1)  # independent variables
 y = jeonse_data["deposit_category"]  # target variable
 
-# 데이터를 train_set와 test_set로 분리
+# Splitting dataset int train_set and  test_set
 X_train, X_test, y_train, y_test = train_test_split(
     X,
     y,
@@ -108,19 +109,19 @@ X_train, X_test, y_train, y_test = train_test_split(
     random_state=40,
 )
 
-# Logistic Regression 모델 생성 및 훈련
+# Logistic Regression Modeling and Training
 model = LogisticRegression(max_iter=2000)
 model.fit(X_train, y_train)
 
-# test_set에 대한 예측 수행
+# Performing Prediction on test_set
 y_pred = model.predict(X_test)
 
-# confusion matrix 생성 (모든 레이블 포함)
+# Confusion Matrix (Including all labels)
 labels = np.arange(len(criterion_labels))
 cm = confusion_matrix(y_test, y_pred, labels=labels).T
 # print(cm)
 
-# Accuracy, Precision, Recall, F1 Score 계산
+# Accuracy, Precision, Recall, F1 Score Calculation
 accuracy = accuracy_score(y_test, y_pred)
 precision = precision_score(y_test, y_pred, average="weighted")
 recall = recall_score(y_test, y_pred, average="weighted")
@@ -131,7 +132,7 @@ print(f"Precision: {precision}")
 print(f"Recall: {recall}")
 print(f"F1 Score: {f1_}")
 
-# Confusion Matrix 시각화
+# Confusion Matrix Visualization
 plt.figure(figsize=(10, 6))
 sns.heatmap(
     cm,

@@ -10,7 +10,7 @@ df = pd.read_csv("data/seongnam_dataset.csv", na_values="-")
 pd.set_option("display.max_seq_items", None)
 
 """
-특성 이름 영어로 변경
+Translate Feature names into English
 """
 column_mapping = {
     "시군구": "district",
@@ -32,11 +32,11 @@ column_mapping = {
     "주택유형": "housing_type",
 }
 
-# 컬럼 이름 변경
+# Changing Column Name
 df = df.rename(columns=column_mapping)
 
 """
-기본 통계 데이터
+Basic statistical data
 """
 print(
     "\n====================================================================================================================\n"
@@ -54,7 +54,7 @@ print(
 )
 
 """
-column별 null data 수
+Number of null data per column
 """
 print("[Column 별 null data 수]\n")
 print(df.isnull().sum())
@@ -63,21 +63,24 @@ print(
 )
 
 """
-[유의미 데이터 추출]
-Drop column - 번지, 계약년월, 계약일, 도로명, 계약구분 부터 모든 칼럼
-사용 column -  시군구, 도로조건, 계약면적, 전월세구분, 보증금(만원), '월세금(만원)', 건축년도, 도로명, 계약기간
+[Extracting meaningful data]
+Drop column - 번지, 계약년월, 계약일, 도로명, and all columns after "계약구분" 
+Using column -  시군구, 도로조건, 계약면적, 전월세구분, 보증금(만원), '월세금(만원)', 건축년도, 도로명, 계약기간
 """
 
 """
 ver2. 05/24
 
-전처리 2차 회의 후, 시군구는 일단 사용하지 않기로 결정.
-추후에 동별 추이 및 평계를 위해 추가적 디벨롭 할 때 다시 사용하기로.
+After the second preprocessing meeting, 
+we decided not to use the administrative district for now. 
+It will be revisited for further development when analyzing trends and averages by neighborhood in the future.
 
-ver3.  05/28 시군구 칼럼 추가
+ver3.  05/28 Adding "시군구" column 
 """
 
-# ver4. 05/30 계약년월 drop - 가격 예측에 불필요, 추후 통계 자료 추출시 사용
+''' ver4. 05/30 "계약년월" drop - unnecessary for price prediction, 
+It will be used for extracting statistical data later'''
+
 indices_to_use = [0, 2, 3, 4, 7, 8, 9, 11]
 df = df.iloc[:, indices_to_use]
 
@@ -89,18 +92,18 @@ print(
 
 
 """
-보증금(만원): 콤마 제거
+보증금(만원): Replacing comman
 """
 df["deposit"] = df["deposit"].fillna("0").apply(lambda x: int(x.replace(",", "")))
 
 """
-전월세구분 wrong data:
+Type of Lease (Jeonse or Monthly Rent) wrong data:
 
-보증금 == 0
-월세 구분인데 월세금 == 0
-전세 구분인데 월세금 != 0
+deposit == 0
+when type: wolse but (monthly rent bill) == 0
+when type: jeonse but deposit != 0
 
-데이터 제거
+Replacing data
 """
 index_to_drop = df[(df["deposit"] == 0)].index
 df.drop(index_to_drop, inplace=True)
@@ -113,8 +116,8 @@ df.drop(index_to_drop, inplace=True)
 
 
 """
-건축연식 = 현재 년도 - 건축년도
-숫자가 작을수록 좋음
+building age = (current year) - (year of construction)
+The lower, the better
 """
 df = df.dropna(subset=["construction_year"])
 df["building_age"] = (datetime.now().year - df["construction_year"]).astype(int)
@@ -122,10 +125,10 @@ df = df.drop(columns=["construction_year"])
 
 
 """
-계약기간: 202401 ~ 202601
-1. '~` 를 기준으로 년도 두 개를 추출한다. (2024, 2026)
-2. 종료년도에서 시작년도를 뺀다
-3. null value 들은 평균 값으로 채워준다.
+Contract Period : 202401 ~ 202601
+1. Extract two years based on '~`". (2024, 2026)
+2. Subtract the start year from the end year
+3. Fill Null values are with mean value.
 """
 df["contract_period"] = df["contract_period"].apply(
     lambda x: int(x.split("~")[1][:4]) if pd.notna(x) else None
@@ -145,13 +148,13 @@ df["contract_month"] = df["contract_year_month"] % 100
 df = df.drop(columns=["contract_year_month"])
 '''
 """
-도로조건: ['8m미만', '12m미만', '25m미만', '25m이상', ]: 매물과 인근한 도로의 넓이
+road_condition : ['8m미만', '12m미만', '25m미만', '25m이상', ]: Width of Road near the Property
 
-넓이가 넓을수록 교통이 좋다고 판단.
-따라서 one-hot encoding 이 아닌, ordinal-encoding 진행
+Wider width is considered indicative of better transportation.
+Therefore, proceeding with ordinal encoding instead of one-hot encoding
 
 """
-# ver3 05/28 도로명 칼럼을 drop하면서 미처리된 '도로조건 null data' drop 진행
+# ver3 05/28 Dropping the '도로명' column and proceeding to drop the unprocessed '도로조건 null data
 
 df = df.dropna(subset=["road_condition"])
 encoder = OrdinalEncoder(
@@ -171,7 +174,7 @@ df_district = df["district"]
 df = df.drop(columns=["district"])
 df = pd.concat([df, df_district], axis=1)
 
-# 05/28 시군구 동 추출, 원핫 인코딩 진행
+# 05/28 Extracting district from "시군구", then proceeding with one-hot encoding.
 df["district"] = df["district"].apply(lambda x: x.split()[-1])
 encoded_district = pd.get_dummies(df["district"])
 df = pd.concat([df, encoded_district], axis=1)
