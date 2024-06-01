@@ -56,7 +56,7 @@ print(
 """
 column별 null data 수
 """
-print("[Column 별 null data 수]\n")
+print("[Before processing (isnull().sum()): seongname_dataset.csv]\n")
 print(df.isnull().sum())
 print(
     "\n====================================================================================================================\n"
@@ -221,6 +221,12 @@ df_js_target = df_js["deposit"]
 df_js = df_js.drop(columns=["deposit", "monthly_rent_bill", "lease_type"])
 df_js = pd.concat([df_js, df_js_target], axis=1)
 
+print("[df_js.describe()]\n")
+print(df_js.describe())
+print(
+    "\n====================================================================================================================\n"
+)
+
 min_max_scaler = MinMaxScaler()
 standard_scaler = StandardScaler()
 
@@ -240,6 +246,12 @@ df_ws_target = df_ws["monthly_rent_bill"]
 df_ws = df_ws.drop(columns=["lease_type", "monthly_rent_bill"])
 df_ws = pd.concat([df_ws, df_ws_target], axis=1)
 
+print("[df_ws.describe()]\n")
+print(df_ws.describe())
+print(
+    "\n====================================================================================================================\n"
+)
+
 # road_condition, contract_area_m2, contract_period에 Min-Max 스케일링 적용
 df_ws['contract_area_m2'] = min_max_scaler.fit_transform(
     df_ws[['contract_area_m2']])
@@ -257,7 +269,6 @@ df_js.to_csv("data/jeonse_dataset.csv",
              index=False, encoding="utf-8-sig")
 df_ws.to_csv("data/wolse_dataset.csv", index=False, encoding="utf-8-sig")
 
-
 print("[After processing (isnull().sum()): jeonse_dataset.csv]\n")
 print(df_js.isnull().sum())
 print(
@@ -267,6 +278,18 @@ print(
 
 print("[After processing (isnull().sum()): wolse_dataset.csv]\n")
 print(df_ws.isnull().sum())
+print(
+    "\n====================================================================================================================\n"
+)
+
+print("[After Scaling df_js.describe()]\n")
+print(df_js.describe())
+print(
+    "\n====================================================================================================================\n"
+)
+
+print("[After Scaling df_ws.describe()]\n")
+print(df_ws.describe())
 print(
     "\n====================================================================================================================\n"
 )

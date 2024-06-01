@@ -4,7 +4,7 @@ import seaborn as sns
 from sklearn.ensemble import ExtraTreesRegressor
 
 
-def feature_importance(dataframe):
+def feature_importance(dataset, dataframe):
 
     X = dataframe.iloc[:, :-1]
     y = dataframe.iloc[:, -1]
@@ -15,30 +15,33 @@ def feature_importance(dataframe):
     feat_importances = pd.Series(model.feature_importances_, index=X.columns)
 
     plt.figure(figsize=(10, 6))
-    plt.title("Feature Importance")
+    plt.title(dataset + " Feature Importance")
     feat_importances.nlargest(10).plot(kind="barh")
 
 
-def corr_heatmap(dataframe):
+def corr_heatmap(dataset, dataframe):
 
     corrmat = dataframe.corr()
-    plt.figure(figsize=(10, 10))
-    plt.title("Correlation Matrix")
+    plt.figure(figsize=(15, 10))
+    plt.title(dataset + " Correlation Matrix")
     sns.heatmap(corrmat, annot=True, cmap="RdYlGn")
+    plt.xticks(rotation=45)
+    plt.yticks(rotation=45)
 
 
 def get_plot(dataset, distrcit_score):
     dataframe = pd.read_csv(dataset)
 
-    feature_importance(dataframe)
+    feature_importance(dataset, dataframe)
 
     if (distrcit_score):
-        corr_heatmap(dataframe)
+        corr_heatmap(dataset, dataframe)
 
     plt.show()
 
 
-get_plot('jeonse_dataset.csv', False)
-get_plot('jeonse_dataset_district_score.csv', True)
-get_plot('wolse_dataset.csv', False)
-get_plot('wolse_dataset_district_score.csv', True)
+# get_plot('data/wolse_dataset.csv', False)
+get_plot('data/wolse_dataset_district_score.csv', True)
+
+# get_plot('data/jeonse_dataset.csv', False)
+# get_plot('data/jeonse_dataset_district_score.csv', True)
