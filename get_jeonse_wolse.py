@@ -10,7 +10,7 @@ df = pd.read_csv("raw_data/seongnam_dataset.csv", na_values="-")
 pd.set_option("display.max_seq_items", None)
 
 """
-특성 이름 영어로 변경
+Change feature names to English
 """
 column_mapping = {
     "시군구": "district",
@@ -32,11 +32,11 @@ column_mapping = {
     "주택유형": "housing_type",
 }
 
-# 컬럼 이름 변경
+# Rename columns
 df = df.rename(columns=column_mapping)
 
 """
-기본 통계 데이터
+Basic statistics data
 """
 print(
     "\n====================================================================================================================\n"
@@ -54,7 +54,7 @@ print(
 )
 
 """
-column별 null data 수
+Number of null data per column
 """
 print("[Before processing (isnull().sum()): seongname_dataset.csv]\n")
 print(df.isnull().sum())
@@ -63,21 +63,21 @@ print(
 )
 
 """
-[유의미 데이터 추출]
-Drop column - 번지, 계약년월, 계약일, 도로명, 계약구분 부터 모든 칼럼
-사용 column -  시군구, 도로조건, 계약면적, 전월세구분, 보증금(만원), '월세금(만원)', 건축년도, 도로명, 계약기간
+[Extract meaningful data]
+Drop columns - lot_number, contract_year_month, contract_day, road_name, contract_type, and all columns after that
+Use columns - district, road_condition, contract_area_m2, lease_type, deposit (10,000 KRW), monthly_rent_bill (10,000 KRW), construction_year, road_name, contract_period
 """
 
 """
 ver2. 05/24
 
-전처리 2차 회의 후, 시군구는 일단 사용하지 않기로 결정.
-추후에 동별 추이 및 평계를 위해 추가적 디벨롭 할 때 다시 사용하기로.
+After the second preprocessing meeting, it was decided not to use the district for now.
+We will use it again when further developing for trends and evaluations by neighborhood later.
 
-ver3.  05/28 시군구 칼럼 추가
+ver3. 05/28 Added district column
 """
 
-# ver4. 05/30 계약년월 drop - 가격 예측에 불필요, 추후 통계 자료 추출시 사용
+# ver4. 05/30 Drop contract_year_month - unnecessary for price prediction, will use for future statistical data extraction
 indices_to_use = [0, 2, 3, 4, 7, 8, 9, 11]
 df = df.iloc[:, indices_to_use]
 
@@ -87,25 +87,23 @@ print(
     "\n====================================================================================================================\n"
 )
 
-
 """
-보증금(만원): 콤마 제거
+Remove commas in deposit (10,000 KRW)
 """
 df["deposit"] = df["deposit"].fillna("0").apply(
     lambda x: int(x.replace(",", "")))
 
 """
-전월세구분 wrong data:
+Incorrect data in lease_type:
 
-보증금 == 0
-월세 구분인데 월세금 == 0
-전세 구분인데 월세금 != 0
+deposit == 0
+lease_type is monthly rent but monthly_rent_bill == 0
+lease_type is jeonse but monthly_rent_bill != 0
 
-데이터 제거
+Remove data
 """
 index_to_drop = df[(df["deposit"] < 300)].index
 df.drop(index_to_drop, inplace=True)
-
 
 index_to_drop = df[(df["lease_type"] == "월세") & (
     df["monthly_rent_bill"] == 0)].index
@@ -115,22 +113,20 @@ index_to_drop = df[(df["lease_type"] == "전세") & (
     df["monthly_rent_bill"] != 0)].index
 df.drop(index_to_drop, inplace=True)
 
-
 """
-건축연식 = 현재 년도 - 건축년도
-숫자가 작을수록 좋음
+Building age = current year - construction_year
+The smaller the number, the better
 """
 df = df.dropna(subset=["construction_year"])
 df["building_age"] = (datetime.now().year -
                       df["construction_year"]).astype(int)
 df = df.drop(columns=["construction_year"])
 
-
 """
-계약기간: 202401 ~ 202601
-1. '~` 를 기준으로 년도 두 개를 추출한다. (2024, 2026)
-2. 종료년도에서 시작년도를 뺀다
-3. null value 들은 평균 값으로 채워준다.
+Contract period: 202401 ~ 202601
+1. Extract two years based on '~' (2024, 2026)
+2. Subtract the start year from the end year
+3. Fill null values with the average value
 """
 df["contract_period"] = df["contract_period"].apply(
     lambda x: int(x.split("~")[1][:4]) if pd.notna(x) else None
@@ -143,15 +139,13 @@ df["contract_period"] = df["contract_period"].fillna(
 )
 df["contract_period"] = df["contract_period"].astype(int)
 
-
 """
-도로조건: ['8m미만', '12m미만', '25m미만', '25m이상', ]: 매물과 인근한 도로의 넓이
+Road condition: ['less than 8m', 'less than 12m', 'less than 25m', 'more than 25m']: the width of the road adjacent to the property
 
-넓이가 넓을수록 교통이 좋다고 판단.
-따라서 one-hot encoding 이 아닌, ordinal-encoding 진행
-
+The wider the road, the better the traffic.
+Therefore, use ordinal encoding instead of one-hot encoding
 """
-# ver3 05/28 도로명 칼럼을 drop하면서 미처리된 '도로조건 null data' drop 진행
+# ver3 05/28 Drop 'road_condition' null data while dropping the road_name column
 
 df = df.dropna(subset=["road_condition"])
 encoder = OrdinalEncoder(
@@ -166,12 +160,11 @@ encoder = OrdinalEncoder(
 )
 df["road_condition"] = encoder.fit_transform(df[["road_condition"]])
 
-
 df_district = df["district"]
 df = df.drop(columns=["district"])
 df = pd.concat([df, df_district], axis=1)
 
-# 05/28 시군구 동 추출, 원핫 인코딩 진행
+# 05/28 Extract dong from district, perform one-hot encoding
 df["district"] = df["district"].apply(lambda x: x.split()[-1])
 encoded_district = pd.get_dummies(df["district"])
 df = pd.concat([df, encoded_district], axis=1)
@@ -215,6 +208,9 @@ def convert_to_english(dataframe):
 
 df = convert_to_english(df)
 
+'''
+divided jeonse, wolse data
+'''
 df_js = df[df["lease_type"] == "전세"]
 df_js_target = df_js["deposit"]
 
@@ -230,15 +226,14 @@ print(
 min_max_scaler = MinMaxScaler()
 standard_scaler = StandardScaler()
 
-# contract_area_m2, contract_period에 Min-Max 스케일링 적용
+# Apply Min-Max scaling to contract_area_m2, contract_period
 df_js['contract_area_m2'] = min_max_scaler.fit_transform(
     df_js[['contract_area_m2']])
 df_js['contract_period'] = min_max_scaler.fit_transform(
     df_js[['contract_period']])
 
-# building_age에 표준화 적용
+# Apply standardization to building_age
 df_js['building_age'] = standard_scaler.fit_transform(df_js[['building_age']])
-
 
 df_ws = df[df["lease_type"] == "월세"]
 df_ws_target = df_ws["monthly_rent_bill"]
@@ -252,18 +247,19 @@ print(
     "\n====================================================================================================================\n"
 )
 
-# road_condition, contract_area_m2, contract_period에 Min-Max 스케일링 적용
+# Apply Min-Max scaling to road_condition, contract_area_m2, contract_period
 df_ws['contract_area_m2'] = min_max_scaler.fit_transform(
     df_ws[['contract_area_m2']])
 df_ws['contract_period'] = min_max_scaler.fit_transform(
     df_ws[['contract_period']])
 
-# building_age에 표준화 적용
+# Apply standardization to building_age
 df_ws['building_age'] = standard_scaler.fit_transform(df_ws[['building_age']])
 
-# deposit에 로그 변환 후 표준화 적용
-df_ws['deposit'] = np.log1p(df_ws['deposit'])  # 로그 변환
-df_ws['deposit'] = standard_scaler.fit_transform(df_ws[['deposit']])  # 표준화
+# Apply log transformation and then standardization to deposit
+df_ws['deposit'] = np.log1p(df_ws['deposit'])  # Log transformation
+df_ws['deposit'] = standard_scaler.fit_transform(
+    df_ws[['deposit']])  # Standardization
 
 df_js.to_csv("data/jeonse_dataset.csv",
              index=False, encoding="utf-8-sig")
@@ -274,7 +270,6 @@ print(df_js.isnull().sum())
 print(
     "\n====================================================================================================================\n"
 )
-
 
 print("[After processing (isnull().sum()): wolse_dataset.csv]\n")
 print(df_ws.isnull().sum())
