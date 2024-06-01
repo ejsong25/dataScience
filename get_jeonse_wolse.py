@@ -256,3 +256,17 @@ df_ws['deposit'] = standard_scaler.fit_transform(df_ws[['deposit']])  # 표준�
 df_js.to_csv("data/jeonse_dataset.csv",
              index=False, encoding="utf-8-sig")
 df_ws.to_csv("data/wolse_dataset.csv", index=False, encoding="utf-8-sig")
+
+
+print("[After processing (isnull().sum()): jeonse_dataset.csv]\n")
+print(df_js.isnull().sum())
+print(
+    "\n====================================================================================================================\n"
+)
+
+
+print("[After processing (isnull().sum()): wolse_dataset.csv]\n")
+print(df_ws.isnull().sum())
+print(
+    "\n====================================================================================================================\n"
+)

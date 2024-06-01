@@ -49,7 +49,7 @@ df = district_score_dataset("data/jeonse_dataset.csv", 4, "deposit")
 
 # normalize된 전세 데이터를 csv로 저장
 df.to_csv(
-    "data/eonse_dataset_district_score.csv",
+    "data/jeonse_dataset_district_score.csv",
     mode="w",
     index=False,
     encoding="utf-8-sig",
