@@ -54,17 +54,25 @@
 >   >   >   > * expensive: (mean + 0.5 * std) ~ (mean + 1.5 * std)
 >   >   >   > * very expensive: (mean + 1.5 * std) ~ inf
 
+<br/>
+
 Open Source SW Contribution
 ===============
 > Used Function definition (and description)
+
 > Architecture
+
 > Preprocessing
+
 > Learning Model Training and Testing
 >   > * Linear Regression
 >   > * Decision Tree
+
 > Evaluation
 >   > * K-Fold Cross Validation
 >   > * Hold-Out Method
 >   > * Bootstrap Method
+
 > Result
-> Github URL: https://github.com/ejsong25/dataScience
+
+>  Github URL: https://github.com/ejsong25/dataScience
