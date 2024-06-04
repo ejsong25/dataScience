@@ -5,7 +5,7 @@ import seaborn as sns
 from sklearn.linear_model import LinearRegression
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.utils import resample
-from sklearn.model_selection import (GridSearchCV, 
+from sklearn.model_selection import (GridSearchCV,
                                      train_test_split,
                                      cross_val_score,
                                      KFold,
@@ -29,8 +29,10 @@ plt.rcParams["font.family"] = "Malgun Gothic"
 plt.rcParams["axes.unicode_minus"] = False
 
 # Load normalized wolse datasets (onehot encoding, district score method)
-wolse_data_score = pd.read_csv("dataScience/wolse_dataset_normalized_score.csv")
-wolse_data_onehot = pd.read_csv("dataScience/wolse_dataset_normalized_onehot.csv")
+wolse_data_score = pd.read_csv(
+    "dataScience/wolse_dataset_normalized_score.csv")
+wolse_data_onehot = pd.read_csv(
+    "dataScience/wolse_dataset_normalized_onehot.csv")
 
 # Setting different test sizes
 test_sizes = [0.1, 0.2, 0.3, 0.4, 0.5]
@@ -68,7 +70,7 @@ for test_size in test_sizes:
     mae = mean_absolute_error(y_test, y_pred)
     r2 = r2_score(y_test, y_pred)
 
-    # 10-Fold Cross Validation 
+    # 10-Fold Cross Validation
     kfold = KFold(n_splits=10, shuffle=True, random_state=42)
 
     # Repeated 10-Fold Cross Validation
@@ -76,7 +78,8 @@ for test_size in test_sizes:
 
     # CVS Calculation
     cvs = cross_val_score(linear_model, X, y, cv=kfold)
-    repeated_cvs = cross_val_score(linear_model, X, y, cv=repeated_kfold, scoring='r2')
+    repeated_cvs = cross_val_score(
+        linear_model, X, y, cv=repeated_kfold, scoring='r2')
 
     # Bootstrap Method
     n_iterations = 1000
@@ -101,7 +104,8 @@ for test_size in test_sizes:
     print()
     print("(2) Repeated KFold CVS\n", repeated_cvs)
     print()
-    print("(3) Bootstrap Method\n", bootstrap_scores[:10], "...")  # Print the first 10 scores for brevity
+    # Print the first 10 scores for brevity
+    print("(3) Bootstrap Method\n", bootstrap_scores[:10], "...")
     print()
     print("2. CVS Mean Comparison")
     print(f"KFold CVS Mean: {cvs.mean()}")
@@ -120,7 +124,8 @@ for test_size in test_sizes:
 """ onehot encoding method를 사용한 데이터셋 """
 
 # Setting Independent variable and Target variable
-X = wolse_data_onehot.drop("monthly_rent_bill", axis=1)  # independent variables
+X = wolse_data_onehot.drop(
+    "monthly_rent_bill", axis=1)  # independent variables
 y = wolse_data_onehot["monthly_rent_bill"]  # target variable (continuous)
 
 print("<wolse_dataset_normalized_one_hot - Monthly-Rent dataset Linear Regression Model Evaluation>")
@@ -146,7 +151,7 @@ for test_size in test_sizes:
     mae = mean_absolute_error(y_test, y_pred)
     r2 = r2_score(y_test, y_pred)
 
-    # 10-Fold Cross Validation 
+    # 10-Fold Cross Validation
     kfold = KFold(n_splits=10, shuffle=True, random_state=42)
 
     # Repeated 10-Fold Cross Validation
@@ -154,7 +159,8 @@ for test_size in test_sizes:
 
     # CVS Calculation
     cvs = cross_val_score(linear_model, X, y, cv=kfold)
-    repeated_cvs = cross_val_score(linear_model, X, y, cv=repeated_kfold, scoring='r2')
+    repeated_cvs = cross_val_score(
+        linear_model, X, y, cv=repeated_kfold, scoring='r2')
 
     # Bootstrap Method
     n_iterations = 1000
@@ -179,7 +185,8 @@ for test_size in test_sizes:
     print()
     print("(2) Repeated KFold CVS\n", repeated_cvs)
     print()
-    print("(3) Bootstrap Method\n", bootstrap_scores[:10], "...")  # Print the first 10 scores for brevity
+    # Print the first 10 scores for brevity
+    print("(3) Bootstrap Method\n", bootstrap_scores[:10], "...")
     print()
     print("2. CVS Mean Comparison")
     print(f"KFold CVS Mean: {cvs.mean()}")
@@ -199,7 +206,7 @@ classification ((Classify monthly rent according to specific criteria)
 """
 """ Dataset that used score method """
 
-#Calculating monthly rent bill's mean, std
+# Calculating monthly rent bill's mean, std
 monthly_rent_mean = wolse_data_score["monthly_rent_bill"].mean()
 monthly_rent_std = wolse_data_score["monthly_rent_bill"].std()
 
@@ -269,17 +276,22 @@ for test_size in test_sizes:
     recall = recall_score(y_test, y_pred, average="weighted")
     f1_ = f1_score(y_test, y_pred, average="weighted")
 
-    # 10-Fold Cross Validation 
+    # 10-Fold Cross Validation
     kfold = KFold(n_splits=10, shuffle=True, random_state=42)
     repeated_kfold = RepeatedKFold(n_splits=10, n_repeats=10, random_state=42)
-    stratified_kfold = StratifiedKFold(n_splits=10, shuffle=True, random_state=42)
-    repeated_stratified_kfold = RepeatedStratifiedKFold(n_splits=10, n_repeats=10, random_state=42)
+    stratified_kfold = StratifiedKFold(
+        n_splits=10, shuffle=True, random_state=42)
+    repeated_stratified_kfold = RepeatedStratifiedKFold(
+        n_splits=10, n_repeats=10, random_state=42)
 
     # CVS Calculation
     cvs = cross_val_score(dt_model, X, y, cv=kfold)
-    repeated_cvs = cross_val_score(dt_model, X, y, cv=repeated_kfold, scoring='accuracy')
-    stratified_cvs = cross_val_score(dt_model, X, y, cv=stratified_kfold, scoring='accuracy')
-    repeated_stratified_cvs = cross_val_score(dt_model, X, y, cv=repeated_stratified_kfold, scoring='accuracy')
+    repeated_cvs = cross_val_score(
+        dt_model, X, y, cv=repeated_kfold, scoring='accuracy')
+    stratified_cvs = cross_val_score(
+        dt_model, X, y, cv=stratified_kfold, scoring='accuracy')
+    repeated_stratified_cvs = cross_val_score(
+        dt_model, X, y, cv=repeated_stratified_kfold, scoring='accuracy')
 
     # Bootstrap Method
     n_iterations = 1000
@@ -308,13 +320,15 @@ for test_size in test_sizes:
     print()
     print("(4)Repeated Stratified KFold CVS\n", repeated_stratified_cvs)
     print()
-    print("(5) Bootstrap Method\n", bootstrap_scores[:10], "...")  # Print the first 10 scores for brevity
+    # Print the first 10 scores for brevity
+    print("(5) Bootstrap Method\n", bootstrap_scores[:10], "...")
     print()
     print("2. CVS Mean Comparison")
     print(f"KFold CVS Mean: {cvs.mean()}")
     print(f"Repeated KFold CVS Mean: {repeated_cvs.mean()}")
     print(f"Stratified KFold CVS Mean: {stratified_cvs.mean()}")
-    print(f"Repeated Stratified KFold CVS Mean: {repeated_stratified_cvs.mean()}")
+    print(
+        f"Repeated Stratified KFold CVS Mean: {repeated_stratified_cvs.mean()}")
     print(f"Bootstrap Mean: {bootstrap_mean}")
 
     # Show Accuracy, Precision, Recall, F1 Score
@@ -336,8 +350,10 @@ for test_size in test_sizes:
         annot=True,
         fmt="d",
         cmap="viridis",
-        xticklabels=["very cheap", "cheap", "appropriate", "expensive", "very expensive"],
-        yticklabels=["very cheap", "cheap", "appropriate", "expensive", "very expensive"],
+        xticklabels=["very cheap", "cheap",
+                     "appropriate", "expensive", "very expensive"],
+        yticklabels=["very cheap", "cheap",
+                     "appropriate", "expensive", "very expensive"],
     )
     plt.xlabel("Actual")
     plt.ylabel("Predicted")
@@ -378,7 +394,8 @@ for test_size in test_sizes:
 
     # 최적의 하이퍼파라미터와 그 성능 출력
     print("Best parameters:", grid_search.best_params_)
-    print("Best cross-validation score: {:.2f}".format(grid_search.best_score_))
+    print(
+        "Best cross-validation score: {:.2f}".format(grid_search.best_score_))
 
     # 최적의 모델로 예측 및 평가
     best_dt = grid_search.best_estimator_
@@ -394,14 +411,15 @@ for test_size in test_sizes:
         annot=True,
         fmt="d",
         cmap="viridis",
-        xticklabels=["very cheap", "cheap", "appropriate", "expensive", "very expensive"],
-        yticklabels=["very cheap", "cheap", "appropriate", "expensive", "very expensive"],
+        xticklabels=["very cheap", "cheap",
+                     "appropriate", "expensive", "very expensive"],
+        yticklabels=["very cheap", "cheap",
+                     "appropriate", "expensive", "very expensive"],
     )
     plt.xlabel("Actual")
     plt.ylabel("Predicted")
     plt.title("Optimized Decision Tree Confusion Matrix")
     plt.show()
-
 
 
 ############################################################################################################
@@ -477,17 +495,22 @@ for test_size in test_sizes:
     recall = recall_score(y_test, y_pred, average="weighted")
     f1_ = f1_score(y_test, y_pred, average="weighted")
 
-    # 10-Fold Cross Validation 
+    # 10-Fold Cross Validation
     kfold = KFold(n_splits=10, shuffle=True, random_state=42)
     repeated_kfold = RepeatedKFold(n_splits=10, n_repeats=10, random_state=42)
-    stratified_kfold = StratifiedKFold(n_splits=10, shuffle=True, random_state=42)
-    repeated_stratified_kfold = RepeatedStratifiedKFold(n_splits=10, n_repeats=10, random_state=42)
+    stratified_kfold = StratifiedKFold(
+        n_splits=10, shuffle=True, random_state=42)
+    repeated_stratified_kfold = RepeatedStratifiedKFold(
+        n_splits=10, n_repeats=10, random_state=42)
 
     # CVS Calculation
     cvs = cross_val_score(dt_model, X, y, cv=kfold)
-    repeated_cvs = cross_val_score(dt_model, X, y, cv=repeated_kfold, scoring='accuracy')
-    stratified_cvs = cross_val_score(dt_model, X, y, cv=stratified_kfold, scoring='accuracy')
-    repeated_stratified_cvs = cross_val_score(dt_model, X, y, cv=repeated_stratified_kfold, scoring='accuracy')
+    repeated_cvs = cross_val_score(
+        dt_model, X, y, cv=repeated_kfold, scoring='accuracy')
+    stratified_cvs = cross_val_score(
+        dt_model, X, y, cv=stratified_kfold, scoring='accuracy')
+    repeated_stratified_cvs = cross_val_score(
+        dt_model, X, y, cv=repeated_stratified_kfold, scoring='accuracy')
 
     # Bootstrap Method
     n_iterations = 1000
@@ -516,13 +539,15 @@ for test_size in test_sizes:
     print()
     print("(4)Repeated Stratified KFold CVS\n", repeated_stratified_cvs)
     print()
-    print("(5) Bootstrap Method\n", bootstrap_scores[:10], "...")  # Print the first 10 scores for brevity
+    # Print the first 10 scores for brevity
+    print("(5) Bootstrap Method\n", bootstrap_scores[:10], "...")
     print()
     print("2. CVS Mean Comparison")
     print(f"KFold CVS Mean: {cvs.mean()}")
     print(f"Repeated KFold CVS Mean: {repeated_cvs.mean()}")
     print(f"Stratified KFold CVS Mean: {stratified_cvs.mean()}")
-    print(f"Repeated Stratified KFold CVS Mean: {repeated_stratified_cvs.mean()}")
+    print(
+        f"Repeated Stratified KFold CVS Mean: {repeated_stratified_cvs.mean()}")
     print(f"Bootstrap Mean: {bootstrap_mean}")
 
     # Show Accuracy, Precision, Recall, F1 Score
@@ -544,8 +569,10 @@ for test_size in test_sizes:
         annot=True,
         fmt="d",
         cmap="viridis",
-        xticklabels=["very cheap", "cheap", "appropriate", "expensive", "very expensive"],
-        yticklabels=["very cheap", "cheap", "appropriate", "expensive", "very expensive"],
+        xticklabels=["very cheap", "cheap",
+                     "appropriate", "expensive", "very expensive"],
+        yticklabels=["very cheap", "cheap",
+                     "appropriate", "expensive", "very expensive"],
     )
     plt.xlabel("Actual")
     plt.ylabel("Predicted")
@@ -586,7 +613,8 @@ for test_size in test_sizes:
 
     # 최적의 하이퍼파라미터와 그 성능 출력
     print("Best parameters:", grid_search.best_params_)
-    print("Best cross-validation score: {:.2f}".format(grid_search.best_score_))
+    print(
+        "Best cross-validation score: {:.2f}".format(grid_search.best_score_))
 
     # 최적의 모델로 예측 및 평가
     best_dt = grid_search.best_estimator_
@@ -602,8 +630,10 @@ for test_size in test_sizes:
         annot=True,
         fmt="d",
         cmap="viridis",
-        xticklabels=["very cheap", "cheap", "appropriate", "expensive", "very expensive"],
-        yticklabels=["very cheap", "cheap", "appropriate", "expensive", "very expensive"],
+        xticklabels=["very cheap", "cheap",
+                     "appropriate", "expensive", "very expensive"],
+        yticklabels=["very cheap", "cheap",
+                     "appropriate", "expensive", "very expensive"],
     )
     plt.xlabel("Actual")
     plt.ylabel("Predicted")
